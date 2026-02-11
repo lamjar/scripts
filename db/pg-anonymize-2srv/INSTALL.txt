@@ -1,0 +1,329 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║                                                                          ║
+║     POSTGRESQL ANONYMIZE DUMP - INSTALLATION ET DÉMARRAGE RAPIDE        ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+📦 FICHIERS LIVRÉS
+═══════════════════════════════════════════════════════════════════════════
+
+1. pg_anonymize_dump.sh      → Script principal d'anonymisation
+2. install.sh                 → Installation automatique des dépendances
+
+3. anonymize_rules.json       → Règles d'anonymisation (modifiable)
+4. config_local.conf          → Exemple configuration locale
+5. config_remote.conf         → Exemple configuration distante
+
+6. README.md                  → Documentation complète
+7. PACKAGE_INFO.txt           → Informations détaillées
+8. QUICK_START.sh             → Guide de démarrage interactif
+9. test_package.sh            → Script de test
+10. INSTALL.txt               → Ce fichier
+
+
+═══════════════════════════════════════════════════════════════════════════
+🚀 INSTALLATION COMPLÈTE (3 COMMANDES)
+═══════════════════════════════════════════════════════════════════════════
+
+# 1. Rendre les scripts exécutables
+chmod +x *.sh
+
+# 2. Installer les dépendances
+./install.sh
+
+# 3. Tester l'installation
+./test_package.sh
+
+
+═══════════════════════════════════════════════════════════════════════════
+⚙️ CONFIGURATION (2 MINUTES)
+═══════════════════════════════════════════════════════════════════════════
+
+# 1. Copier un exemple de configuration
+cp config_local.conf ma_config.conf
+
+# 2. Éditer selon vos besoins (voir exemples dans le fichier)
+vim ma_config.conf
+
+# Paramètres essentiels à modifier :
+#   - SOURCE_HOST, SOURCE_DB, SOURCE_SCHEMA, SOURCE_USER
+#   - TARGET_HOST, TARGET_DB, TARGET_SCHEMA, TARGET_USER
+#   - SOURCE_SERVER et TARGET_SERVER (si serveurs différents)
+
+# 3. Vérifier/adapter les règles d'anonymisation
+vim anonymize_rules.json
+
+# 4. (Optionnel mais recommandé) Configurer .pgpass pour la sécurité
+cat > ~/.pgpass << 'EOF'
+localhost:5432:ma_base_source:postgres:mon_password_source
+localhost:5432:ma_base_target:postgres:mon_password_target
+EOF
+chmod 600 ~/.pgpass
+
+
+═══════════════════════════════════════════════════════════════════════════
+▶️  EXÉCUTION
+═══════════════════════════════════════════════════════════════════════════
+
+# Exécution simple
+./pg_anonymize_dump.sh ma_config.conf
+
+# Avec nohup pour laisser tourner en arrière-plan
+nohup ./pg_anonymize_dump.sh ma_config.conf > execution.log 2>&1 &
+
+# Suivre les logs en temps réel
+tail -f anonymize_*.log
+
+
+═══════════════════════════════════════════════════════════════════════════
+📚 AIDE ET DOCUMENTATION
+═══════════════════════════════════════════════════════════════════════════
+
+# Afficher l'aide
+./pg_anonymize_dump.sh --help
+
+# Afficher un exemple de configuration
+./pg_anonymize_dump.sh --example-config
+
+# Afficher un exemple de règles
+./pg_anonymize_dump.sh --example-rules
+
+# Consulter le guide de démarrage rapide
+./QUICK_START.sh
+
+# Lire la documentation complète
+cat README.md
+
+# Afficher les infos du package
+cat PACKAGE_INFO.txt
+
+
+═══════════════════════════════════════════════════════════════════════════
+🎯 EXEMPLE COMPLET D'UTILISATION
+═══════════════════════════════════════════════════════════════════════════
+
+# SCÉNARIO : Anonymiser production vers staging (même serveur)
+
+# 1. Installation
+chmod +x *.sh
+./install.sh
+
+# 2. Configuration
+cat > ma_config.conf << 'EOF'
+SOURCE_HOST="localhost"
+SOURCE_PORT="5432"
+SOURCE_DB="production_db"
+SOURCE_SCHEMA="public"
+SOURCE_USER="postgres"
+SOURCE_PASSWORD=""
+
+TARGET_HOST="localhost"
+TARGET_PORT="5432"
+TARGET_DB="staging_db"
+TARGET_SCHEMA="public"
+TARGET_USER="postgres"
+TARGET_PASSWORD=""
+
+SOURCE_SERVER=""
+TARGET_SERVER=""
+
+DUMP_DIR="/tmp/pg_dumps"
+TRANSFER_METHOD="local"
+ANONYMIZE_RULES_FILE="anonymize_rules.json"
+
+AUTO_DETECT_PII=true
+KEEP_DUMP_AFTER_RESTORE=false
+BACKUP_TARGET_BEFORE=true
+PARALLEL_JOBS=4
+
+DUMP_FORMAT="custom"
+COMPRESSION_LEVEL=6
+EOF
+
+# 3. Configurer .pgpass
+cat > ~/.pgpass << 'EOF'
+localhost:5432:production_db:postgres:mon_mot_de_passe
+localhost:5432:staging_db:postgres:mon_mot_de_passe
+EOF
+chmod 600 ~/.pgpass
+
+# 4. Exécuter
+./pg_anonymize_dump.sh ma_config.conf
+
+# 5. Vérifier les résultats
+psql -h localhost -U postgres -d staging_db -c "SELECT email, nom FROM users LIMIT 5;"
+# Devrait afficher des emails du type : user_abc123@anonymized.local
+
+
+═══════════════════════════════════════════════════════════════════════════
+🔧 CONFIGURATION POUR DEUX SERVEURS DIFFÉRENTS
+═══════════════════════════════════════════════════════════════════════════
+
+# SCÉNARIO : Source sur serveur1, Target sur serveur2
+
+# 1. Configurer SSH (sur votre PC ou serveur1)
+ssh-keygen -t rsa  # Si pas déjà fait
+ssh-copy-id user@serveur1
+ssh-copy-id user@serveur2
+
+# 2. Configuration
+cat > ma_config.conf << 'EOF'
+SOURCE_HOST="192.168.1.10"
+SOURCE_PORT="5432"
+SOURCE_DB="production_db"
+SOURCE_SCHEMA="public"
+SOURCE_USER="postgres"
+SOURCE_PASSWORD=""
+
+TARGET_HOST="192.168.1.20"
+TARGET_PORT="5432"
+TARGET_DB="staging_db"
+TARGET_SCHEMA="public"
+TARGET_USER="postgres"
+TARGET_PASSWORD=""
+
+SOURCE_SERVER="user@192.168.1.10"
+TARGET_SERVER="user@192.168.1.20"
+
+DUMP_DIR="/tmp/pg_dumps"
+TRANSFER_METHOD="rsync"
+ANONYMIZE_RULES_FILE="anonymize_rules.json"
+
+AUTO_DETECT_PII=true
+KEEP_DUMP_AFTER_RESTORE=false
+BACKUP_TARGET_BEFORE=true
+PARALLEL_JOBS=4
+
+DUMP_FORMAT="custom"
+COMPRESSION_LEVEL=6
+EOF
+
+# 3. Configurer .pgpass sur chaque serveur
+ssh user@serveur1 "cat > ~/.pgpass << 'EOF'
+192.168.1.10:5432:production_db:postgres:password_source
+EOF
+chmod 600 ~/.pgpass"
+
+ssh user@serveur2 "cat > ~/.pgpass << 'EOF'
+192.168.1.20:5432:staging_db:postgres:password_target
+EOF
+chmod 600 ~/.pgpass"
+
+# 4. Exécuter
+./pg_anonymize_dump.sh ma_config.conf
+
+
+═══════════════════════════════════════════════════════════════════════════
+⚡ OPTIMISATION POUR GRANDES BASES
+═══════════════════════════════════════════════════════════════════════════
+
+# Pour bases > 100 GB
+cat > config_grande_base.conf << 'EOF'
+# ... autres paramètres identiques ...
+
+# Optimisations
+DUMP_FORMAT="directory"        # Meilleur pour gros volumes
+PARALLEL_JOBS=16               # Augmenter selon CPU disponible
+COMPRESSION_LEVEL=1            # Moins de compression = plus rapide
+TRANSFER_METHOD="rsync"        # Plus efficace que scp
+
+# Conserver le dump pour analyse ultérieure
+KEEP_DUMP_AFTER_RESTORE=true
+EOF
+
+
+═══════════════════════════════════════════════════════════════════════════
+🐛 RÉSOLUTION DES PROBLÈMES COURANTS
+═══════════════════════════════════════════════════════════════════════════
+
+PROBLÈME : "command not found: pg_dump"
+SOLUTION : ./install.sh n'a pas été exécuté ou a échoué
+           → Relancer ./install.sh
+
+PROBLÈME : "Permission denied" lors du transfert SSH
+SOLUTION : Configurer les clés SSH
+           → ssh-copy-id user@serveur
+
+PROBLÈME : "Database already exists: temp_anon_xxxxx"
+SOLUTION : Une exécution précédente a échoué
+           → psql -U postgres -c "DROP DATABASE temp_anon_xxxxx;"
+
+PROBLÈME : "No space left on device"
+SOLUTION : Pas assez d'espace disque
+           → Libérer de l'espace ou changer DUMP_DIR
+
+PROBLÈME : Exécution très lente
+SOLUTION : Augmenter PARALLEL_JOBS, réduire COMPRESSION_LEVEL
+           → PARALLEL_JOBS=8, COMPRESSION_LEVEL=3
+
+PROBLÈME : "FATAL: password authentication failed"
+SOLUTION : Problème de mot de passe
+           → Vérifier .pgpass ou les variables PASSWORD dans config
+
+
+═══════════════════════════════════════════════════════════════════════════
+📊 VÉRIFICATION POST-EXÉCUTION
+═══════════════════════════════════════════════════════════════════════════
+
+# 1. Vérifier les logs
+cat anonymize_*.log
+
+# 2. Consulter le rapport
+cat /tmp/pg_dumps/report_*.txt
+
+# 3. Tester quelques requêtes
+psql -h TARGET_HOST -U TARGET_USER -d TARGET_DB << EOF
+-- Vérifier que les emails sont anonymisés
+SELECT email FROM users LIMIT 5;
+
+-- Vérifier que les téléphones sont anonymisés
+SELECT phone FROM users LIMIT 5;
+
+-- Compter le nombre de lignes (devrait être identique à la source)
+SELECT COUNT(*) FROM users;
+EOF
+
+# 4. Vérifier visuellement quelques lignes
+psql -h TARGET_HOST -U TARGET_USER -d TARGET_DB -c "
+SELECT * FROM users LIMIT 3;
+"
+
+
+═══════════════════════════════════════════════════════════════════════════
+✅ CHECKLIST FINALE
+═══════════════════════════════════════════════════════════════════════════
+
+☐ Dépendances installées (./install.sh)
+☐ Configuration créée et validée
+☐ .pgpass configuré (recommandé)
+☐ SSH configuré si nécessaire
+☐ Espace disque vérifié (au moins 2x la taille de la base source)
+☐ Test sur petite base effectué
+☐ Backup de sécurité créé
+☐ Anonymisation vérifiée manuellement
+☐ Logs archivés
+
+
+═══════════════════════════════════════════════════════════════════════════
+📞 BESOIN D'AIDE ?
+═══════════════════════════════════════════════════════════════════════════
+
+1. Consulter README.md pour la documentation complète
+2. Lancer ./QUICK_START.sh pour le guide interactif
+3. Utiliser ./test_package.sh pour diagnostiquer les problèmes
+4. Vérifier les logs : anonymize_*.log
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+Prêt à commencer ? Lancez :
+
+    chmod +x *.sh && ./install.sh
+
+Puis consultez le guide de démarrage :
+
+    ./QUICK_START.sh
+
+Bonne anonymisation ! 🎭
+
+═══════════════════════════════════════════════════════════════════════════

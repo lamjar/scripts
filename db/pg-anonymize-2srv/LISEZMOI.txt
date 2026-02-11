@@ -1,0 +1,251 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║                                                                          ║
+║              🎭 POSTGRESQL ANONYMIZE DUMP TOOL 🎭                       ║
+║                                                                          ║
+║               Script Shell Linux d'Anonymisation PostgreSQL             ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+
+═══════════════════════════════════════════════════════════════════════════
+📦 CONTENU DU PACKAGE (10 FICHIERS)
+═══════════════════════════════════════════════════════════════════════════
+
+🔧 SCRIPTS PRINCIPAUX
+────────────────────────────────────────────────────────────────────────────
+1. pg_anonymize_dump.sh       ★ SCRIPT PRINCIPAL (28 Ko)
+2. install.sh                  → Installation des dépendances (3.2 Ko)
+3. test_package.sh             → Test et validation (7 Ko)
+
+📋 CONFIGURATION
+────────────────────────────────────────────────────────────────────────────
+4. anonymize_rules.json        → Règles d'anonymisation (5.2 Ko)
+5. config_local.conf           → Exemple config locale (1.1 Ko)
+6. config_remote.conf          → Exemple config distante (1.3 Ko)
+
+📚 DOCUMENTATION
+────────────────────────────────────────────────────────────────────────────
+7. README.md                   → Documentation complète (10 Ko)
+8. INSTALL.txt                 → Guide d'installation (14 Ko)
+9. QUICK_START.sh              → Démarrage rapide (14 Ko)
+10. PACKAGE_INFO.txt           → Infos détaillées (21 Ko)
+
+
+═══════════════════════════════════════════════════════════════════════════
+🚀 DÉMARRAGE ULTRA-RAPIDE (3 COMMANDES)
+═══════════════════════════════════════════════════════════════════════════
+
+chmod +x *.sh && ./install.sh && ./QUICK_START.sh
+
+
+═══════════════════════════════════════════════════════════════════════════
+✨ FONCTIONNALITÉS PRINCIPALES
+═══════════════════════════════════════════════════════════════════════════
+
+✅ Détection automatique des colonnes à anonymiser
+   → Email, téléphone, nom, adresse, SSN, IBAN, carte bancaire, IP, etc.
+
+✅ Anonymisation lors du dump (pas de plugin requis)
+   → Données cohérentes et réalistes
+   → Format préservé (email reste email, etc.)
+
+✅ Support multi-serveurs
+   → Source et Target sur serveurs différents
+   → Transfert sécurisé SSH (scp/rsync)
+   → Exécution locale ou distante
+
+✅ Workflow complet
+   → Backup automatique du target
+   → Nettoyage avant restauration
+   → Rapports détaillés + logs
+   → Jobs parallèles pour performance
+
+
+═══════════════════════════════════════════════════════════════════════════
+🎯 CAS D'USAGE
+═══════════════════════════════════════════════════════════════════════════
+
+✓ Production → Staging (anonymisation RGPD)
+✓ Production → Développement (données de test)
+✓ Migration entre serveurs avec anonymisation
+✓ Partage de données avec prestataires externes
+✓ Tests de montée de version PostgreSQL
+
+
+═══════════════════════════════════════════════════════════════════════════
+📖 PAR OÙ COMMENCER ?
+═══════════════════════════════════════════════════════════════════════════
+
+🆕 DÉBUTANT ?
+────────────────────────────────────────────────────────────────────────────
+1. Lire INSTALL.txt (guide pas à pas)
+2. Exécuter ./QUICK_START.sh (guide interactif)
+3. Tester sur une petite base
+
+👨‍💻 UTILISATEUR EXPÉRIMENTÉ ?
+────────────────────────────────────────────────────────────────────────────
+1. chmod +x *.sh
+2. ./install.sh
+3. Copier config_local.conf ou config_remote.conf
+4. Adapter à vos besoins
+5. ./pg_anonymize_dump.sh ma_config.conf
+
+📚 BESOIN DE DÉTAILS ?
+────────────────────────────────────────────────────────────────────────────
+Lire README.md (documentation complète)
+
+
+═══════════════════════════════════════════════════════════════════════════
+⚙️ CONFIGURATION MINIMALE
+═══════════════════════════════════════════════════════════════════════════
+
+Dans config.conf, modifier au minimum :
+
+SOURCE_HOST="localhost"              # Hôte source
+SOURCE_DB="ma_base_production"       # Base source
+SOURCE_SCHEMA="public"               # Schéma source
+SOURCE_USER="postgres"               # Utilisateur source
+
+TARGET_HOST="localhost"              # Hôte target
+TARGET_DB="ma_base_staging"          # Base target
+TARGET_SCHEMA="public"               # Schéma target
+TARGET_USER="postgres"               # Utilisateur target
+
+ANONYMIZE_RULES_FILE="anonymize_rules.json"  # Fichier de règles
+
+Le reste des paramètres a des valeurs par défaut fonctionnelles.
+
+
+═══════════════════════════════════════════════════════════════════════════
+🔐 SÉCURITÉ
+═══════════════════════════════════════════════════════════════════════════
+
+✓ Anonymisation IRRÉVERSIBLE (md5, random)
+✓ Conformité RGPD
+✓ Transferts sécurisés SSH
+✓ Support .pgpass (pas de passwords en clair)
+✓ Logs et audits complets
+
+
+═══════════════════════════════════════════════════════════════════════════
+📊 TYPES DE DONNÉES ANONYMISÉES
+═══════════════════════════════════════════════════════════════════════════
+
+• Email           → user_abc123@anonymized.local
+• Téléphone       → 0612345678 (format FR)
+• Nom/Prénom      → Anonyme_XYZ98765
+• Adresse         → 123 Rue Anonyme, 75000 Ville
+• Date naissance  → Date aléatoire (18-80 ans)
+• IBAN            → FR76 + 23 chiffres aléatoires
+• Carte bancaire  → 4111 + 12 chiffres (Visa)
+• SSN             → Format valide aléatoire
+• IP              → IP privée aléatoire
+• Username        → user_random123
+• Password        → md5 aléatoire
+
++ Règles personnalisées illimitées (API keys, tokens, etc.)
+
+
+═══════════════════════════════════════════════════════════════════════════
+🎓 EXEMPLES PRATIQUES
+═══════════════════════════════════════════════════════════════════════════
+
+EXEMPLE 1 : Même serveur, deux bases
+────────────────────────────────────────────────────────────────────────────
+cp config_local.conf ma_config.conf
+vim ma_config.conf  # Modifier SOURCE_DB et TARGET_DB
+./pg_anonymize_dump.sh ma_config.conf
+
+EXEMPLE 2 : Deux serveurs différents
+────────────────────────────────────────────────────────────────────────────
+cp config_remote.conf ma_config.conf
+vim ma_config.conf  # Modifier les IPs et serveurs
+ssh-copy-id user@serveur_target
+./pg_anonymize_dump.sh ma_config.conf
+
+EXEMPLE 3 : Règles personnalisées
+────────────────────────────────────────────────────────────────────────────
+vim anonymize_rules.json
+# Ajouter dans "custom_rules":
+{
+  "table": "users",
+  "column": "api_key",
+  "method": "'sk_test_' || substr(md5(random()::text), 1, 32)"
+}
+./pg_anonymize_dump.sh ma_config.conf
+
+
+═══════════════════════════════════════════════════════════════════════════
+⚡ PERFORMANCES
+═══════════════════════════════════════════════════════════════════════════
+
+Petite base (< 1 GB)      : 2-5 minutes
+Base moyenne (1-10 GB)    : 10-30 minutes
+Grosse base (10-100 GB)   : 1-3 heures
+Très grosse (> 100 GB)    : 3-12 heures
+
+Pour optimiser : PARALLEL_JOBS=8, DUMP_FORMAT="directory"
+
+
+═══════════════════════════════════════════════════════════════════════════
+🐛 DÉPANNAGE EXPRESS
+═══════════════════════════════════════════════════════════════════════════
+
+"command not found: pg_dump"    → ./install.sh
+"Permission denied" (SSH)       → ssh-copy-id user@serveur
+"Database already exists"       → psql -c "DROP DATABASE temp_anon_xxxxx;"
+"No space left"                 → Libérer espace ou changer DUMP_DIR
+Script lent                     → ↑ PARALLEL_JOBS, ↓ COMPRESSION_LEVEL
+
+
+═══════════════════════════════════════════════════════════════════════════
+📞 AIDE
+═══════════════════════════════════════════════════════════════════════════
+
+./pg_anonymize_dump.sh --help        → Aide en ligne
+./pg_anonymize_dump.sh --example-config  → Exemple de config
+./pg_anonymize_dump.sh --example-rules   → Exemple de règles
+./test_package.sh                    → Test et diagnostic
+cat README.md                        → Doc complète
+cat INSTALL.txt                      → Guide d'installation
+./QUICK_START.sh                     → Guide interactif
+
+
+═══════════════════════════════════════════════════════════════════════════
+✅ CHECKLIST AVANT PREMIÈRE UTILISATION
+═══════════════════════════════════════════════════════════════════════════
+
+☐ Lire ce fichier (LISEZMOI.txt)
+☐ Installer les dépendances (./install.sh)
+☐ Créer un fichier de configuration
+☐ Configurer .pgpass (recommandé)
+☐ Tester sur une PETITE base d'abord
+☐ Vérifier manuellement l'anonymisation
+☐ Faire un backup avant production
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+                    🚀 PRÊT À DÉMARRER ? 🚀
+
+Pour un guide pas à pas, lancez :
+
+    chmod +x *.sh
+    ./QUICK_START.sh
+
+Pour installer et tester immédiatement :
+
+    chmod +x *.sh && ./install.sh && ./test_package.sh
+
+Pour une utilisation directe (si dépendances déjà installées) :
+
+    cp config_local.conf ma_config.conf
+    vim ma_config.conf
+    ./pg_anonymize_dump.sh ma_config.conf
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+                       Bonne anonymisation ! 🎭
+
+═══════════════════════════════════════════════════════════════════════════

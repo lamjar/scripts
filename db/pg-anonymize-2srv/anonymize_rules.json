@@ -1,0 +1,183 @@
+{
+  "detection_patterns": {
+    "email": [
+      "email",
+      "mail",
+      "e_mail",
+      "courriel",
+      "adresse_mail",
+      "email_address"
+    ],
+    "phone": [
+      "phone",
+      "tel",
+      "telephone",
+      "mobile",
+      "cellulaire",
+      "portable",
+      "fax"
+    ],
+    "name": [
+      "name",
+      "nom",
+      "prenom",
+      "firstname",
+      "lastname",
+      "surname",
+      "given_name",
+      "family_name",
+      "full_name"
+    ],
+    "address": [
+      "address",
+      "adresse",
+      "street",
+      "rue",
+      "city",
+      "ville",
+      "postal",
+      "zip",
+      "country",
+      "pays"
+    ],
+    "ssn": [
+      "ssn",
+      "social_security",
+      "secu",
+      "nir",
+      "numero_secu"
+    ],
+    "iban": [
+      "iban",
+      "account",
+      "compte",
+      "bank_account",
+      "compte_bancaire"
+    ],
+    "credit_card": [
+      "card",
+      "carte",
+      "cc_number",
+      "credit_card",
+      "card_number",
+      "pan"
+    ],
+    "ip_address": [
+      "ip",
+      "ip_address",
+      "adresse_ip",
+      "ip_addr"
+    ],
+    "date_of_birth": [
+      "birth",
+      "naissance",
+      "dob",
+      "date_naissance",
+      "birthday",
+      "birth_date"
+    ],
+    "username": [
+      "username",
+      "user_name",
+      "login",
+      "pseudo",
+      "nickname"
+    ],
+    "password": [
+      "password",
+      "passwd",
+      "pwd",
+      "mot_de_passe",
+      "pass"
+    ]
+  },
+  
+  "anonymization_methods": {
+    "email": "CASE WHEN {column} IS NOT NULL THEN 'user' || substr(md5({column}::text || random()::text), 1, 8) || '@anonymized.local' ELSE NULL END",
+    
+    "phone": "CASE WHEN {column} IS NOT NULL THEN CASE WHEN {column} LIKE '+%' THEN '+33' ELSE '0' END || lpad((100000000 + floor(random() * 899999999))::bigint::text, 9, '0') ELSE NULL END",
+    
+    "name": "CASE WHEN {column} IS NOT NULL THEN 'Anonyme_' || upper(substr(md5(random()::text), 1, 8)) ELSE NULL END",
+    
+    "address": "CASE WHEN {column} IS NOT NULL THEN (1 + floor(random() * 999))::int || ' Rue de l''Anonymat, ' || (10000 + floor(random() * 89999))::int || ' Ville Anonyme' ELSE NULL END",
+    
+    "ssn": "CASE WHEN {column} IS NOT NULL THEN (1 + floor(random()))::int || ' ' || lpad((floor(random() * 99))::int::text, 2, '0') || ' ' || lpad((floor(random() * 12))::int::text, 2, '0') || ' ' || lpad((floor(random() * 999))::int::text, 3, '0') || ' ' || lpad((floor(random() * 999))::int::text, 3, '0') || ' ' || lpad((floor(random() * 99))::int::text, 2, '0') ELSE NULL END",
+    
+    "iban": "CASE WHEN {column} IS NOT NULL THEN 'FR76' || lpad((floor(random() * 10000000000000000000000))::bigint::text, 23, '0') ELSE NULL END",
+    
+    "credit_card": "CASE WHEN {column} IS NOT NULL THEN '4111' || lpad((floor(random() * 1000000000000))::bigint::text, 12, '0') ELSE NULL END",
+    
+    "ip_address": "CASE WHEN {column} IS NOT NULL THEN (10 + floor(random() * 235))::int::text || '.' || floor(random() * 255)::int::text || '.' || floor(random() * 255)::int::text || '.' || floor(random() * 255)::int::text ELSE NULL END",
+    
+    "date_of_birth": "CASE WHEN {column} IS NOT NULL THEN (CURRENT_DATE - (6570 + floor(random() * 21900))::int)::date ELSE NULL END",
+    
+    "username": "CASE WHEN {column} IS NOT NULL THEN 'user_' || substr(md5(random()::text), 1, 10) ELSE NULL END",
+    
+    "password": "CASE WHEN {column} IS NOT NULL THEN md5('anonymous_' || random()::text) ELSE NULL END"
+  },
+  
+  "custom_rules": [
+    {
+      "table": "users",
+      "column": "api_key",
+      "method": "CASE WHEN {column} IS NOT NULL THEN 'sk_test_' || substr(md5(random()::text), 1, 32) ELSE NULL END"
+    },
+    {
+      "table": "users",
+      "column": "api_secret",
+      "method": "CASE WHEN {column} IS NOT NULL THEN substr(md5(random()::text), 1, 64) ELSE NULL END"
+    },
+    {
+      "table": "sessions",
+      "column": "token",
+      "method": "CASE WHEN {column} IS NOT NULL THEN md5(random()::text) || md5(random()::text) ELSE NULL END"
+    },
+    {
+      "table": "oauth_tokens",
+      "column": "access_token",
+      "method": "CASE WHEN {column} IS NOT NULL THEN 'anon_' || substr(md5(random()::text), 1, 40) ELSE NULL END"
+    },
+    {
+      "table": "oauth_tokens",
+      "column": "refresh_token",
+      "method": "CASE WHEN {column} IS NOT NULL THEN 'anon_' || substr(md5(random()::text), 1, 40) ELSE NULL END"
+    },
+    {
+      "table": "comments",
+      "column": "ip_address",
+      "method": "CASE WHEN {column} IS NOT NULL THEN '10.' || floor(random() * 255)::int::text || '.' || floor(random() * 255)::int::text || '.' || floor(random() * 255)::int::text ELSE NULL END"
+    },
+    {
+      "table": "audit_logs",
+      "column": "user_agent",
+      "method": "CASE WHEN {column} IS NOT NULL THEN 'Mozilla/5.0 (Anonymized)' ELSE NULL END"
+    }
+  ],
+  
+  "exclude_tables": [
+    "schema_migrations",
+    "spatial_ref_sys",
+    "ar_internal_metadata",
+    "django_migrations",
+    "flyway_schema_history",
+    "alembic_version"
+  ],
+  
+  "exclude_columns": [
+    "id",
+    "uuid",
+    "created_at",
+    "updated_at",
+    "deleted_at",
+    "created_by",
+    "updated_by",
+    "version",
+    "revision",
+    "status",
+    "type",
+    "role",
+    "is_active",
+    "is_deleted",
+    "is_verified"
+  ]
+}
