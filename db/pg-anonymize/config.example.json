@@ -1,0 +1,134 @@
+{
+  "source": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "production_db",
+    "schema": "public",
+    "user": "postgres",
+    "password": ""
+  },
+  "target": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "staging_db",
+    "schema": "public",
+    "user": "postgres",
+    "password": ""
+  },
+  "anonymization_rules": {
+    "users": {
+      "email": "fake_email",
+      "phone": "fake_phone",
+      "mobile": "fake_phone",
+      "first_name": "fake_first_name",
+      "last_name": "fake_last_name",
+      "address": "fake_address",
+      "street": "fake_address",
+      "password": "hash",
+      "password_hash": "hash",
+      "api_token": "hash",
+      "reset_token": "hash",
+      "birth_date": "noise",
+      "profile_picture": "null",
+      "bio": "null"
+    },
+    "customers": {
+      "credit_card_number": "mask",
+      "cvv": "mask",
+      "ssn": "mask",
+      "social_security_number": "mask",
+      "salary": "noise",
+      "annual_income": "noise",
+      "bank_account": "mask",
+      "iban": "mask",
+      "bic": "mask",
+      "tax_id": "mask"
+    },
+    "orders": {
+      "ip_address": "hash",
+      "user_agent": "mask",
+      "session_id": "hash",
+      "payment_token": "hash"
+    },
+    "employees": {
+      "personal_email": "fake_email",
+      "work_email": "keep",
+      "home_phone": "fake_phone",
+      "emergency_contact": "fake_phone",
+      "salary": "noise",
+      "bonus": "noise",
+      "commission": "noise"
+    },
+    "contacts": {
+      "phone_number": "fake_phone",
+      "fax": "fake_phone",
+      "email_address": "fake_email",
+      "website": "null"
+    },
+    "invoices": {
+      "amount": "noise",
+      "tax_amount": "noise",
+      "total": "noise",
+      "payment_details": "mask"
+    },
+    "logs": {
+      "ip_address": "hash",
+      "user_id": "shuffle",
+      "session_token": "hash"
+    }
+  },
+  "exclusions": {
+    "tables": [
+      "schema_migrations",
+      "ar_internal_metadata",
+      "spatial_ref_sys"
+    ],
+    "columns": [
+      "id",
+      "uuid",
+      "created_at",
+      "updated_at",
+      "deleted_at",
+      "created_by",
+      "updated_by",
+      "version",
+      "status",
+      "type",
+      "category",
+      "code",
+      "reference"
+    ]
+  },
+  "options": {
+    "detect_sensitive_columns": true,
+    "backup_before_restore": false,
+    "drop_target_schema": true,
+    "create_anonymization_functions": true,
+    "parallel_jobs": 1,
+    "compression": "gzip",
+    "verbose": false
+  },
+  "advanced_rules": {
+    "conditional_anonymization": {
+      "users": {
+        "condition": "role != 'admin'",
+        "columns": ["email", "phone"]
+      }
+    },
+    "partial_masking": {
+      "credit_cards": {
+        "pattern": "XXXX-XXXX-XXXX-{last_4}"
+      },
+      "phone_numbers": {
+        "pattern": "XXX-XXX-{last_4}"
+      }
+    },
+    "referential_integrity": {
+      "maintain_foreign_keys": true,
+      "shuffle_consistently": [
+        "users.id",
+        "orders.user_id"
+      ]
+    }
+  }
+}
